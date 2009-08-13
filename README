@@ -1,0 +1,32 @@
+
+This is the Python pgplot extension written by Nick Patavalis. 
+This version has minor mods from Scott Ransom and Tom Marsh.
+
+Installation:
+
+You must have pgplot, python and 'numpy' installed. A difficult
+issue that the pgplot and numpy must have been compiled with the
+same type of fotran compiler e.g. either g77/g95 or gfortran.
+If pgplot is compiled with g77/g95 but numpy with gfortran, things
+won't work.
+
+Then type:
+
+python setup.pt install --prefix=top_level_install_directory
+
+If no prefix, then it will go to the standard location but you
+will have to be root. 
+
+I have started on documentation, but only a few have been done.
+Most routines have the same call as standard pgplot, but sometimes
+the number of points does not appear, e.g. pgline becomes
+
+pgline(x,y)
+
+because the x,y numpy arrays contain the number of points. However,
+this is not consistently applied and if in doubt, you should look at the 
+C interface code.
+
+Access what documentation there is using 'pydoc ppgplot'
+
+Tom Marsh
