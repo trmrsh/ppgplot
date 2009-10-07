@@ -98,8 +98,8 @@ tofloatmat(PyObject *o, float **m, int *nr, int *nc)
     a1 = (PyArrayObject *)o;
     /* Check if args are matrices. */
     if (a1->nd != 2) {
-		PyErr_SetString(PpgTYPEErr,"object is not a matrix");
-		return(NULL);
+	PyErr_SetString(PpgTYPEErr,"object is not a matrix");
+	return(NULL);
     }
     
 #ifdef DEBUG_TOARRAY
@@ -301,13 +301,9 @@ PYF(pgpoly)
 		return NULL;
 	if(!(xa = (PyArrayObject*)tofloatvector(xarray, &xpoints, &xlen))) goto fail;
 	if(!(ya = (PyArrayObject*)tofloatvector(yarray, &ypoints, &ylen))) goto fail;
-	/*for(int i = 0; i < xlen; i++)
-	  {
-	  printf("%i: %f,%f\n", i, xpoints
-	  }*/
+
 	n = xlen;
-	if(ylen < n)
-		n = ylen;
+	if(ylen < n) n = ylen;
 	cpgpoly(n, xpoints, ypoints);
 
 	Py_DECREF(xa);
@@ -1405,7 +1401,7 @@ PYF(pgpt1)
  * In order to plot (map) a matrix 
  *            a[r1:r2,c1:c2] 
  * in a viewport scaled as:
- *            x-axis form x1 to x2
+ *            x-axis from x1 to x2
  *            y-axis from y1 to y2
  * having rows run on x and columns on run y, you have to use the
  * following transformation matrix:
@@ -1442,37 +1438,46 @@ static PyObject *
 ImageMap(int color, PyObject *args)
 {
     float fg=0.0, bg=0.0, *a=NULL, *tr=NULL;
-    int cd=0, rd=0, c1=0, c2=0, r1=0, r2=0, rn=0, cn=0;
+    int c1=0, c2=0, r1=0, r2=0, rn=0, cn=0;
     npy_intp sz=0;
     PyObject *oa = NULL, *ot = NULL;
     PyArrayObject *aa = NULL, *at = NULL;
 
 
-    if (!PyArg_ParseTuple(args,"OiiiiiiffO:pggray",
-						  &oa, &cd, &rd, &c1, &c2, &r1, &r2,
-						  &fg, &bg, &ot))
-		return(NULL);
+    if (!PyArg_ParseTuple(args,"OiiiiffO:pggray", &oa, &c1, &c2, &r1, &r2, &fg, &bg, &ot))
+	return(NULL);
 
     if (!(aa =(PyArrayObject *)tofloatmat(oa, &a, &rn, &cn))) goto fail;
     if (!(at =(PyArrayObject *)tofloatvector(ot, &tr, &sz))) goto fail;
 
     if (sz < 6) {
-		PyErr_SetString(PpgTYPEErr,"pggray: invalid transform. vactor");
-		goto fail;
+	if(color)
+	    PyErr_SetString(PpgTYPEErr,"pgimag: invalid transform. vactor");
+	else
+	    PyErr_SetString(PpgTYPEErr,"pggray: invalid transform. vactor");
+	goto fail;
+    }
+
+    if(c1 >= c2 || r1 >= r2 || c2 >= cn || r2 >= rn || c1 < 0 || r1 < 0){ 
+	if(color)
+	    PyErr_SetString(PpgTYPEErr,"pgimag: column and/or row indices out of range");
+	else
+	    PyErr_SetString(PpgTYPEErr,"pggray: column and/or row indices out of range");
+	goto fail;
     }
 
     if (color)
-		cpgimag(a, cn, rn, c1+1, c2+1, r1+1, r2+1, bg, fg, tr);
+	cpgimag(a, cn, rn, c1+1, c2+1, r1+1, r2+1, bg, fg, tr);
     else
-		cpggray(a, cn, rn, c1+1, c2+1, r1+1, r2+1, fg, bg, tr);
+	cpggray(a, cn, rn, c1+1, c2+1, r1+1, r2+1, fg, bg, tr);
 
     Py_DECREF(aa);
     Py_DECREF(at);
     PYRN;
 
 fail:
-    if (aa) { Py_DECREF(aa); }
-    if (at) { Py_DECREF(at); }
+    Py_XDECREF(aa);
+    Py_XDECREF(at);
     return(NULL);
 }
 
@@ -1495,7 +1500,7 @@ ImageMap_s (int color, PyObject *args)
     
     if (!(aa =(PyArrayObject *)tofloatmat(oa, &a, &rn, &cn))) return(NULL);
 
-    /* Perform autocalibrations as nesecairy. */
+    /* Perform autocalibrations as necessary. */
     autocal2d(a, rn, cn, &fg, &bg, 5, levels, &x1, &x2, &y1, &y2, tr);
 
     if (color)
@@ -2162,7 +2167,7 @@ static PyMethodDef PpgMethods[] = {
     {"pgerrx", pgerrx, METH_VARARGS},
     {"pgerry", pgerry, METH_VARARGS},
     {"pgetxt", pgetxt, METH_VARARGS},
-    {"pggray", pggray, METH_VARARGS},
+    {"pggray", pggray, METH_VARARGS, "pggray(data, c1, c2, r1, r2, fg, bg, tr): grayscale image"},
     {"pggray_s", pggray_s, METH_VARARGS},
     {"pghi2d", pghi2d, METH_VARARGS},
     {"pghi2d_s", pghi2d_s, METH_VARARGS},
