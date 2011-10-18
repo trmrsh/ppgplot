@@ -76,7 +76,7 @@ tofloatvector (PyObject *o, float **v, npy_intp *vsz)
     PyArrayObject* array = NULL;
     array = (PyArrayObject*) PyArray_FromAny(o, PyArray_DescrFromType(NPY_FLOAT), 1, 1, NPY_ALIGNED | NPY_C_CONTIGUOUS | NPY_FORCECAST, NULL);
     if(array == NULL) return NULL;
-    *vsz = PyArray_Size(o);
+    *vsz = PyArray_Size(array);
     *v   = (float*) PyArray_DATA(array);
     return (PyObject*)array;
 }
@@ -462,6 +462,26 @@ PYF(pgopen)
     }
 
     return(Py_BuildValue("i",did));
+}    
+
+PYF(pgaxis)
+{
+  char  *opt=NULL;
+  float x1=0.,x2=1.,y1=0.,y2=1.,v1=0.,v2=1.,step=1.;
+  float dmajl=1.,dmajr=1., fmin=1., disp=0.,orient=0.;
+  int   nsub=2;
+
+  if (!PyArg_ParseTuple(args,"|zfffffffifffff:pgaxis",
+			&opt, &x1, &y1, &x2, &y2, &v1, &v2,
+			&step, &nsub, &dmajl, &dmajr, &fmin, 
+			&disp, &orient))
+    return(NULL);
+    
+  if (!opt) opt = "N";
+
+  cpgaxis(opt,x1,y1,x2,y2,v1,v2,step,nsub,dmajl,dmajr,fmin,disp,orient);
+
+  PYRN;
 }    
 
 PYF(pgslct)
@@ -1920,6 +1940,7 @@ genContours (enum pp_contour_funcs ft, PyObject *args)
     if (abs(nc) > csz) {
 		PyErr_SetString(PpgTYPEErr,"contour: size of cont vec < than the "
 						"req. contours number");
+		//printf("%d %d\n", nc, csz);
 		goto fail;
     }
     if (trsz < 6) {
@@ -2140,6 +2161,7 @@ PYF(pgconl_s)
 static PyMethodDef PpgMethods[] = {
     {"pgarro", pgarro, METH_VARARGS, "pgarro(x1,y1,x2,y2): draw arrow from x1,y1 to x2,y2"},
     {"pgask", pgask,METH_VARARGS, "pgask(flag): switch prompting for new pages on or off"},
+    {"pgaxis", pgaxis,METH_VARARGS, "pgaxis(opt,x1,y1,x2,y2,v1,v2,step,nsub,dmajl,dmajr,fmin,disp,orient): draw an axis"},
     {"pgband", pgband, METH_VARARGS, "(x,y,ch) = pgband(mode, posn=0, xref=0., yref=0.): cursor routine"},
     {"pgbbuf", pgbbuf, METH_VARARGS,"pgbbuf(): start buffering pgplot output"},
     {"pgbeg",  pgbeg, METH_VARARGS, "pgbeg(device=/xserve, nx=1, ny=1): open plot device"},
