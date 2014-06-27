@@ -12,7 +12,7 @@ won't work.
 
 Then type:
 
-python setup.pt install --prefix=top_level_install_directory
+python setup.py install --prefix=top_level_install_directory
 
 If no prefix, then it will go to the standard location but you
 will have to be root. 
