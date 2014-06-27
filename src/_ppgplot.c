@@ -333,6 +333,7 @@ PYF(pgqvp)
 	return Py_BuildValue("ffff", x1, x2, y1, y2);
 }
 
+
 /*
   pgqvsz(units : int)
   return x1, x2, y1, y2
@@ -345,6 +346,18 @@ PYF(pgqvsz)
 	if(!PyArg_ParseTuple(args, "i", &units))
 		return NULL;
 	cpgqvsz(units, &x1, &x2, &y1, &y2);
+	return Py_BuildValue("ffff", x1, x2, y1, y2);
+}
+
+/*
+  pgqwin()
+  return x1, x2, y1, y2
+*/
+PYF(pgqwin)
+{
+	float x1, x2, y1, y2;
+	cpgqwin(&x1, &x2, &y1, &y2);
+
 	return Py_BuildValue("ffff", x1, x2, y1, y2);
 }
 
@@ -1842,7 +1855,7 @@ PYF(pghi2d)
     Py_DECREF(ax);
     Py_DECREF(ayl);
     PYRN;
-    
+
 fail:
     if (ad) { Py_DECREF(ad); }
     if (ax) { Py_DECREF(ax); }
@@ -2258,6 +2271,7 @@ static PyMethodDef PpgMethods[] = {
     {"pgpoly", pgpoly, METH_VARARGS},
     {"pgqvp", pgqvp, METH_VARARGS, "pgqvp(units): query the viewport. Returns (xv1,xv2,yv1,yv2)"},
     {"pgqvsz", pgqvsz, METH_VARARGS},
+    {"pgqwin", pgqwin, METH_VARARGS, "pgwin(): query the window. Returns (x1,x2,y1,y2)"},
     {"pgsclp", pgsclp, METH_VARARGS},
     {"pgqclp", pgqclp, METH_VARARGS},
     {"pgconf", pgconf, METH_VARARGS},
