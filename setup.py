@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_inc, get_python_lib
 import os
@@ -20,13 +22,13 @@ include_dirs.append(numpy.get_include())
 undef_macros.append('USE_NUMARRAY')
 
 if os.name == "posix":
-    if os.environ.has_key("PGPLOT_DIR"):
+    if "PGPLOT_DIR" in os.environ:
         library_dirs.append(os.environ["PGPLOT_DIR"])
         include_dirs.append(os.environ["PGPLOT_DIR"])
     else:
-        print >>sys.stderr, "Environment variable PGPLOT_DIR not defined!"
+        print("Environment variable PGPLOT_DIR not defined!", file=sys.stderr)
 else:
-    raise Exception, "os not supported"
+    raise Exception("os not supported")
 
 ext_pgplot = Extension('_ppgplot',
                        include_dirs  = include_dirs,
