@@ -2291,7 +2291,7 @@ static PyMethodDef PpgMethods[] = {
 #if PY_MAJOR_VERSION >= 3
     #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
 #else
-    #define MOD_INIT(name) PyMODINIT_FUNC init_##name(void)
+    #define MOD_INIT(name) PyMODINIT_FUNC init##name(void)
 #endif
 
 MOD_INIT(_ppgplot)
